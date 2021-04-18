@@ -1,5 +1,7 @@
 import settings as st
 import numpy as np
+import os
+from PIL import Image
 
 
 def is_default(row):
@@ -69,3 +71,29 @@ def statics_load(filename="generated"):
     """ 加载所保存的统计数据字典 """
     data = np.load(st.base + filename + ".npy")
     return data
+
+
+def build():
+    """ 生成该文件对应的灰度图文件夹，并返回建立路径，返回地路径中末尾已经带有\\ """
+    data_path = st.base + "data_pictures"
+    if not os.path.exists(data_path):
+        os.mkdir(data_path)
+    return data_path + "\\"
+
+
+def make_matrix(gray_list, size):
+    """ 该方法返回由list生成的32*32矩阵，矩阵中每一个属性占size*size个单元格 """
+    return None
+
+
+def make_image(gray_array, pictures_path, uid):
+    """ 该方法根据array生成灰度图，命名格式为 {uid}.jpg，方法返回生成成功与否 """
+    if gray_array is None:
+        return False
+    path = pictures_path + str(uid) + ".jpg"
+    ''' 如果之前已经建立该用户的灰度图，则清空重建 '''
+    if os.path.exists(path):
+        os.remove(path)
+    img = Image.fromarray(np.uint8(gray_array))
+    img.save(path)
+    return True

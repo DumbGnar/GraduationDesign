@@ -1,13 +1,13 @@
 import pandas as pd
 import numpy as np
-import sys
+import math
 import methods
 import settings as st
 
 ''' 全局参数设置 '''
 data_path = st.data_path
 test_data_path = st.test_data_path
-test_mode = st.test_mode        # 为True时使用小数据集
+test_mode = st.test_mode  # 为True时使用小数据集
 delete_rate = st.delete_rate  # 数据预处理接段如果超过该值则会剔除该行对应数据
 enum_upper = st.enum_upper  # 当一列中出现的值种类少于该值时认定为枚举类
 ENUM_NUMBER = st.ENUM_NUMBER  # 枚举型整数数据
@@ -91,7 +91,7 @@ for col in cols_list:
 ''' 对类别进行统计后，进行插值，枚举型采用众数插值，非枚举型采用均值插值 '''
 col_to_delete = []
 for col in cols_list:
-    myType, avg_num, mode_num, std_num, values_list = cols_info_dict[col]        # 元组解包
+    myType, avg_num, mode_num, std_num, values_list = cols_info_dict[col]  # 元组解包
     if myType <= 1:
         data[col].fillna(value=mode_num, inplace=True)
     elif myType == 2:
@@ -137,7 +137,7 @@ for col in cols_list:
         for i in range(group_max_num):
             ''' 划定区间为 [start_row, end_row) '''
             start_row = i * group_volume
-            end_row = min((i+1)*group_volume, len(data_col))
+            end_row = min((i + 1) * group_volume, len(data_col))
             # print(start_row, end_row)
             ''' 统计该分组中的yi和ni '''
             yi = 0
@@ -154,7 +154,7 @@ for col in cols_list:
             ''' 计算该分组的WOE值 '''
             pyi = yi / yt
             pni = ni / nt
-            WOEi = np.log(pyi/pni)
+            WOEi = np.log(pyi / pni)
             ''' 计算该分组的IV值，并将其加到该属性的IV值中 '''
             IVi = (pyi - pni) * WOEi
             IV += IVi
@@ -197,4 +197,56 @@ for col in cols_list:
                     cols_info_dict[col][3], cols_info_dict[col][-1])
 
 # print(storage)
-methods.statics(cols_iterable=cols_list, storage_dict=storage)
+''' 进行存储 '''
+# methods.statics(cols_iterable=cols_list, storage_dict=storage)
+''' 删除IV值低于0.30的属性 '''
+temp_cols_list = cols_list[:]
+for col in temp_cols_list:
+    if storage[col][1] is None or storage[col][1] < IV_critical:
+        del storage[col]
+        cols_list.remove(col)
+# print(len(cols_list))
+''' 根据当前所要选的剩余的 '''
+list_len = len(cols_list)
+element_size = 32 * 32
+while 1024 / element_size < list_len:
+    element_size /= 4
+print(element_size)
+''' 构建该文件对应的存储灰度图文件夹 '''
+pictures_path = methods.build()
+''' 生成灰度图列表 '''
+for index, row in data.iterrows():
+    ''' 生成一个只有各个属性对应的一个灰度值的list '''
+    gray_list = []
+    for col in cols_list:
+        if storage[col][0] == NOT_ENUM_NUMBER:
+            ''' 非枚举整性变量处理 '''
+            value = row[col]  # 获得该列值
+            ''' z-score标准化处理 '''
+            value_mean = storage[col][2]  # 均值
+            value_std = storage[col][4]  # 标准差
+            value = (value - value_mean) / value_std
+            # print(value)
+            ''' 计算灰度图亮度值 '''
+            bulb = (value / 1.88) * 127.5 + 127.5
+            if bulb < 0:
+                bulb = 0
+            elif bulb > 255:
+                bulb = 255
+            gray_list.append(bulb)
+
+        if storage[col][0] == ENUM_NUMBER or storage[col][0] == ENUM_STRING:
+            ''' 枚举型变量处理 '''
+            value = row[col]  # 获取该列值
+            ''' 获得该值在枚举值中的index '''
+            value_index = storage[col][-1].index(value)
+            ''' 获取该属性枚举值个数 '''
+            value_enum = len(storage[col][-1])
+            bulb = value_index / (value_enum - 1) * 255
+            gray_list.append(bulb)
+    ''' 将gray_list转变为array '''
+    print(gray_list)
+    arr = methods.make_matrix(gray_list, round(math.sqrt(element_size)))
+    ''' 生成该客户对应的灰度图图像，命名格式为 客户ID.jpg '''
+    if methods.make_image(arr, pictures_path, row["id"]):
+        print("USER {0} MADE SUCCESSFULLY!".format(row["id"]))
