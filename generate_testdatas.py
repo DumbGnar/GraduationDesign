@@ -5,6 +5,6 @@ import settings as st
 data_path = st.data_path
 test_data_path = st.test_data_path
 ''' 读入源数据,并保留前50行 '''
-data = pd.read_csv(data_path, nrows=5000)
+data = pd.read_csv(data_path, nrows=st.rows)
 ''' 保存到测试数据路径 '''
 data.to_csv(test_data_path, index=None)

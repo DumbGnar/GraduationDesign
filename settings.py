@@ -1,4 +1,5 @@
 """ 全局参数设置 """
+rows = 5000  # 测试数据生成量
 base = "D:\\Kaggle\\DataSets\\accepted_2007_to_2018q4.csv\\"
 data_name = "accepted_2007_to_2018Q4.csv"
 test_data_name = "test.csv"
@@ -14,3 +15,6 @@ NOT_ENUM_STRING = 3  # 非枚举型字符数据
 UNKNOWN = 4  # 未知情况类型
 group_max_num = 10  # 对于非枚举型变量分组中最多有几组
 IV_critical = 0.30  # 对于IV值低于IV_critical的属性进行剔除
+default_training_rate = 0.70  # 在违约客户中，70%的数据将作为训练集
+not_default_training_rate = 0.70  # 在非违约客户中，70%的数据将作为训练集
+BATCH_SIZE = 10  # 一次训练要处理几条数据

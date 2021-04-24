@@ -215,6 +215,7 @@ print(element_size)
 ''' 构建该文件对应的存储灰度图文件夹 '''
 pictures_path = methods.build()
 ''' 生成灰度图列表 '''
+counts = 0
 for index, row in data.iterrows():
     ''' 生成一个只有各个属性对应的一个灰度值的list '''
     gray_list = []
@@ -245,8 +246,12 @@ for index, row in data.iterrows():
             bulb = value_index / (value_enum - 1) * 255
             gray_list.append(bulb)
     ''' 将gray_list转变为array '''
-    print(gray_list)
-    arr = methods.make_matrix(gray_list, round(math.sqrt(element_size)))
-    ''' 生成该客户对应的灰度图图像，命名格式为 客户ID.jpg '''
-    if methods.make_image(arr, pictures_path, row["id"]):
+    # print(gray_list)
+    # arr = methods.make_matrix(gray_list, round(math.sqrt(element_size)))
+    arr = methods.make_matrix(gray_list, 4)
+    ''' 判断该用户是否为违约客户 '''
+    is_default = methods.is_default(row)
+    ''' 生成该客户对应的灰度图图像，命名格式为 counts.jpg '''
+    if methods.make_image(arr, pictures_path, counts, is_default):
         print("USER {0} MADE SUCCESSFULLY!".format(row["id"]))
+    counts += 1
