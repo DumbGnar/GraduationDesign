@@ -1,3 +1,5 @@
+from glob import glob
+
 import settings as st
 import numpy as np
 import os
@@ -5,6 +7,7 @@ from PIL import Image
 import random
 import gzip
 import struct
+import shutil
 
 
 def is_default(row):
@@ -81,7 +84,7 @@ def build():
     ''' 生成存储基础路径 '''
     data_path = st.base + "data_pictures\\"
     if os.path.exists(data_path):
-        os.removedirs(data_path)
+        shutil.rmtree(path=data_path)
     os.mkdir(data_path)
     ''' 建立训练数据集和测试数据集 '''
     test_data_path = data_path + "testing\\"
@@ -108,7 +111,7 @@ def make_matrix(gray_list, size):
     ''' 计算各行各列最多放几个元素 '''
     max_size = 32 / size
     ''' 对list进行长度扩充 '''
-    while len(gray_list) < max_size**2:
+    while len(gray_list) < max_size ** 2:
         gray_list.append(255)
     # print(len(gray_list))
     ''' 进行数据填充 '''
@@ -129,7 +132,7 @@ def make_matrix(gray_list, size):
 
 
 def make_image(gray_array, pictures_path, uid, is_default):
-    """ 该方法根据array生成灰度图，命名格式为 {uid}.jpg，方法返回生成成功与否 """
+    """ 该方法根据array生成灰度图，命名格式为 {uid}_raw.jpg，方法返回生成成功与否 """
     if gray_array is None:
         return False
     ''' 根据settings中的比例选择来将图像放入训练集还是测试集 '''
@@ -150,7 +153,7 @@ def make_image(gray_array, pictures_path, uid, is_default):
         pictures_path += "1\\"
     else:
         pictures_path += "0\\"
-    path = pictures_path + str(uid) + ".jpg"
+    path = pictures_path + str(uid) + "_raw.jpg"
     ''' 如果之前已经建立该用户的灰度图，则清空重建 '''
     if os.path.exists(path):
         os.remove(path)
@@ -190,3 +193,38 @@ def get_data():
         't10k-images-idx3-ubyte.gz',
         't10k-labels-idx1-ubyte.gz')
     return [train_img, train_label, test_img, test_label]
+
+
+def rename():
+    """ 用于重新命名 """
+    train_data_path = st.base + "data_pictures\\training\\"
+    test_data_path = st.base + "data_pictures\\testing\\"
+    ''' 进行地址寻访 '''
+    after_dir = '.jpg'
+    ''' 进行训练集重命名，id为文件夹名称 '''
+    counts = 0
+    for id in range(2):
+        id_string = str(id)
+        iter_copy = glob(train_data_path + id_string + '\\*.jpg')
+        for filename in iter_copy:
+            print(filename)
+            ''' 提取出图片编号， '''
+            position = filename.replace(train_data_path + id_string + '\\', '')
+            position = position.replace(after_dir, '')
+            print(position)
+            os.rename(src=filename, dst=train_data_path+id_string+"\\"+str(counts)+".jpg")
+            counts += 1
+    ''' 进行测试集重命名，id为文件夹名称 '''
+    counts = 0
+    for id in range(2):
+        id_string = str(id)
+        iter_copy = glob(test_data_path + id_string + '\\*.jpg')
+        for filename in iter_copy:
+            print(filename)
+            ''' 提取出图片编号， '''
+            position = filename.replace(test_data_path + id_string + '\\', '')
+            position = position.replace(after_dir, '')
+            print(position)
+            os.rename(src=filename, dst=test_data_path + id_string + "\\" + str(counts) + ".jpg")
+            counts += 1
+

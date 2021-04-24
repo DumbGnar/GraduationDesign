@@ -1,22 +1,19 @@
 import torch
-import torchvision
-from PIL import Image
-import numpy as np
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from glob import glob
-from torch.utils.data import Dataset, DataLoader
-import os
-import logging
+from torch.utils.data import DataLoader
 import models
 import settings as st
+import matplotlib.pyplot as plt
+import numpy as np
 
 all_image_list = []
 class_id = []
 
 ''' 设置训练集总长度 '''
-data_length = st.rows
+# data_length = st.rows
+data_length = 3499
 data_label = [-1] * data_length
 ''' 进行地址寻访 '''
 prev_dir = st.base + "data_pictures\\training\\"
@@ -54,7 +51,10 @@ train_loader = DataLoader(all_data, batch_size=st.BATCH_SIZE, shuffle=True)
 print('finish loading data, ready to load')
 
 ''' 模型训练 '''
-for epoch in range(1):
+x = []
+y = []
+counts = 0
+for epoch in range(10):
     net.train()
 
     epoch_loss = 0.0
@@ -80,8 +80,16 @@ for epoch in range(1):
 
         epoch_loss += loss.item()
 
-        ''' 每200条数据打印一次 '''
-        if batch_num % 200 == 199:
+        ''' 每20条数据打印一次 '''
+        if batch_num % 20 == 19:
             print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, batch_num + 1, epoch_loss / 2000))
+                  (epoch + 1, batch_num + 1, epoch_loss / 200))
+            ''' 记录下图像点 '''
+            x.append(counts)
+            counts += 1
+            y.append(epoch_loss / 200)
             epoch_loss = 0.0
+
+''' 打印图像 '''
+plt.plot(np.array(x), np.array(y), "r", label="Modified")
+plt.show()
