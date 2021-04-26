@@ -13,7 +13,9 @@ class_id = []
 
 ''' 设置训练集总长度 '''
 # data_length = st.rows
-data_length = 3499
+''' 读取临时保存的字典 '''
+temp_dict = np.load("temp.npy", allow_pickle=True)
+data_length = temp_dict.item()["train_counts"]
 data_label = [-1] * data_length
 ''' 进行地址寻访 '''
 prev_dir = st.base + "data_pictures\\training\\"
@@ -22,10 +24,10 @@ after_dir = '.jpg'
 ''' 进行数据读入，id为文件夹名称 '''
 for id in range(2):
     id_string = str(id)
-    for filename in glob(prev_dir + id_string +'\\*.jpg'):
+    for filename in glob(prev_dir + id_string + '\\*.jpg'):
         print(filename)
         ''' 提取出图片编号，并设置data_label[编号] = value '''
-        position = filename.replace(prev_dir+id_string+'\\', '')
+        position = filename.replace(prev_dir + id_string + '\\', '')
         position = position.replace(after_dir, '')
         print(position)
         data_label[int(position)] = id
@@ -93,3 +95,6 @@ for epoch in range(10):
 ''' 打印图像 '''
 plt.plot(np.array(x), np.array(y), "r", label="Modified")
 plt.show()
+
+''' 保存模型 '''
+torch.save(net.state_dict(), 'model.pth')

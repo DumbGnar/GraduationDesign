@@ -255,4 +255,9 @@ for index, row in data.iterrows():
         print("USER {0} MADE SUCCESSFULLY!".format(row["id"]))
 
 ''' 全部生成完成后进行重命名 '''
-methods.rename()
+train_counts, test_counts = methods.rename()
+''' 两个值表示一共有多少个数据，实际上id表示要减1 '''
+# print(train_counts, test_counts)
+''' 将两个值保存到当前目录下的一个临时字典中 '''
+temp_storage_dict = {"train_counts": train_counts, "test_counts": test_counts}
+np.save("temp.npy", temp_storage_dict)

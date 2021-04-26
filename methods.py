@@ -196,13 +196,13 @@ def get_data():
 
 
 def rename():
-    """ 用于重新命名 """
+    """ 用于重新命名，返回一个二元组(训练集最大id，测试集最大id) """
     train_data_path = st.base + "data_pictures\\training\\"
     test_data_path = st.base + "data_pictures\\testing\\"
     ''' 进行地址寻访 '''
     after_dir = '.jpg'
     ''' 进行训练集重命名，id为文件夹名称 '''
-    counts = 0
+    train_counts = 0
     for id in range(2):
         id_string = str(id)
         iter_copy = glob(train_data_path + id_string + '\\*.jpg')
@@ -212,10 +212,10 @@ def rename():
             position = filename.replace(train_data_path + id_string + '\\', '')
             position = position.replace(after_dir, '')
             print(position)
-            os.rename(src=filename, dst=train_data_path+id_string+"\\"+str(counts)+".jpg")
-            counts += 1
+            os.rename(src=filename, dst=train_data_path+id_string+"\\"+str(train_counts)+".jpg")
+            train_counts += 1
     ''' 进行测试集重命名，id为文件夹名称 '''
-    counts = 0
+    test_counts = 0
     for id in range(2):
         id_string = str(id)
         iter_copy = glob(test_data_path + id_string + '\\*.jpg')
@@ -225,6 +225,7 @@ def rename():
             position = filename.replace(test_data_path + id_string + '\\', '')
             position = position.replace(after_dir, '')
             print(position)
-            os.rename(src=filename, dst=test_data_path + id_string + "\\" + str(counts) + ".jpg")
-            counts += 1
+            os.rename(src=filename, dst=test_data_path + id_string + "\\" + str(test_counts) + ".jpg")
+            test_counts += 1
+    return train_counts, test_counts
 

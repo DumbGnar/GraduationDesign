@@ -64,7 +64,8 @@ class Network(nn.Module):
         self.conv2 = nn.Conv2d(6, 16, 5)
         self.linear1 = nn.Linear(16 * 5 * 5, 120)
         self.linear2 = nn.Linear(120, 84)
-        self.linear3 = nn.Linear(84, 10)
+        self.liner2dropout = nn.Dropout(0.5)
+        self.linear3 = nn.Linear(84, 2)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
